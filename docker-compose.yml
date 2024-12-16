@@ -1,0 +1,13 @@
+name: wireguard-socks-proxy
+services:
+  wireguard-socks-proxy:
+    stdin_open: true
+    tty: true
+    cap_add:
+      - NET_ADMIN
+    container_name: wireguard-socks-proxy
+    volumes:
+      - /directory/containing/your/wireguard/conf/file/:/etc/wireguard/:ro
+    ports:
+      - 1080:1080
+    image: ghcr.io/chosomeister/docker-wireguard-socks-proxy:latest
