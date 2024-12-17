@@ -10,8 +10,7 @@ services:
       - /directory/containing/your/wireguard/conf/file/:/etc/wireguard/:ro
     ports:
       - 1080:1080
-    image: wireguard-socks-proxy:latest
-    platform: linux/arm64
-    privileged: true # Allows sysctl modifications
+    image: ghcr.io/chosomeister/docker-wireguard-socks-proxy:latest
+    privileged: true
     sysctls:
       - net.ipv4.conf.all.src_valid_mark=1
