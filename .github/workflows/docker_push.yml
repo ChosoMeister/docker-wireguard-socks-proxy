@@ -17,20 +17,21 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GGHCR_TOKEN }}" | docker login ghcr.io -u chosomeister --password-stdin
+
       - name: Extract version
         id: get_version
         run: echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
 
-      - name: Build and tag the Docker image
+      - name: Build and push multi-platform Docker image
         run: |
-          docker build . -t ghcr.io/chosomeister/docker-wireguard-socks-proxy:${{ env.VERSION }}
-          docker login -u chosomeister -p ${{ secrets.GGHCR_TOKEN }} ghcr.io
-          docker tag ghcr.io/chosomeister/docker-wireguard-socks-proxy:${{ env.VERSION }} ghcr.io/chosomeister/docker-wireguard-socks-proxy:latest
-
-      - name: Push the Docker image
-        run: |
-          docker push ghcr.io/chosomeister/docker-wireguard-socks-proxy:${{ env.VERSION }}
-          docker push ghcr.io/chosomeister/docker-wireguard-socks-proxy:latest
+          docker buildx create --use
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            --tag ghcr.io/chosomeister/docker-wireguard-socks-proxy:${{ env.VERSION }} \
+            --tag ghcr.io/chosomeister/docker-wireguard-socks-proxy:latest \
+            --push .
 
       - name: Create GitHub Release
         id: create_release
