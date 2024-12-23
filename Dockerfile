@@ -13,10 +13,6 @@ RUN chmod +x /entrypoint.sh
 # Copy the SOCKS5 configuration file into the container
 COPY sockd.conf /etc/sockd.conf
 
-# Create a non-root user and switch to it
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-USER appuser
-
 # Set the container's entrypoint to execute the script
 ENTRYPOINT ["/entrypoint.sh"]
 
