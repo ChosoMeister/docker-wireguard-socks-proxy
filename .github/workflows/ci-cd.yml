@@ -1,47 +1,49 @@
-name: CI/CD Pipeline
+name: Publish image to ghcr.io
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version tag"
+        required: true
+        default: "latest"
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  publish_image:
+    runs-on: ubuntu-22.04
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      # Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
+      # Set up Docker Buildx for multi-platform builds
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
-      - name: Cache Docker layers
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-
+      # Log in to GitHub Container Registry
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "${{ secrets.GGHCR_TOKEN }}" | docker login ghcr.io -u chosomeister --password-stdin
 
-      - name: Build and push Docker image
-        id: docker_build
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          push: true
-          tags: ghcr.io/chosomeister/docker-wireguard-socks-proxy:latest
+      # Extract the version from the workflow inputs
+      - name: Extract version
+        id: get_version
+        run: echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
 
-      - name: Verify Docker image
+      # Build and push the multi-platform Docker image
+      - name: Build and push multi-platform Docker image
         run: |
-          docker run --rm ghcr.io/chosomeister/docker-wireguard-socks-proxy:latest /bin/sh -c "echo Hello, world!"
+          docker buildx create --use
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            --tag ghcr.io/chosomeister/docker-wireguard-socks-proxy:${{ env.VERSION }} \
+            --tag ghcr.io/chosomeister/docker-wireguard-socks-proxy:latest \
+            --push .
+
+      # Create a GitHub Release
+      - name: Create GitHub Release
+        id: create_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GGHCR_TOKEN }}
+        run: |
+          gh release create v${{ env.VERSION }} --title "Release v${{ env.VERSION }}" --notes "Release notes for version ${{ env.VERSION }}"
