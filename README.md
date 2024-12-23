@@ -4,7 +4,7 @@ A Docker container that sets up a WireGuard interface and a SOCKS5 proxy using D
 
 ## Project Overview
 
-This project provides a Dockerized solution to set up a WireGuard VPN and a SOCKS5 proxy server. It uses Alpine Linux as the base image and installs WireGuard and Dante server to create a secure and efficient proxy solution.
+This project provides a Dockerized solution to set up a WireGuard VPN and a SOCKS5 proxy server. It uses Alpine Linux as the base image and installs WireGuard and Dante server to create a secure an...
 
 ## Prerequisites
 
