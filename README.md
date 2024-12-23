@@ -1,105 +1,70 @@
-To improve the documentation for your `docker-wireguard-socks-proxy` project, we can enhance the README file by adding more detailed sections and explanations. Here's an improved version of your README file:
+# Docker WireGuard SOCKS5 Proxy
 
----
+A Docker container that sets up a WireGuard interface and a SOCKS5 proxy using Dante.
 
-# docker-wireguard-socks-proxy
+## Project Overview
 
-Expose WireGuard as a SOCKS5 proxy in a Docker container.
+This project provides a Dockerized solution to set up a WireGuard VPN and a SOCKS5 proxy server. It uses Alpine Linux as the base image and installs WireGuard and Dante server to create a secure and efficient proxy solution.
 
-## Table of Contents
+## Prerequisites
 
-- [Usage](#usage)
-- [Configuration](#configuration)
-- [Example Scenarios](#example-scenarios)
-- [HTTP Proxy](#http-proxy)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
-- [License](#license)
+- Docker installed on your machine.
+- A valid WireGuard configuration file.
+
+## Installation
+
+1. **Clone the Repository**:
+
+   ```bash
+   git clone https://github.com/ChosoMeister/docker-wireguard-socks-proxy.git
+   cd docker-wireguard-socks-proxy
+   ```
+
+2. **Build the Docker Image**:
+   ```bash
+   docker build -t wireguard-socks-proxy .
+   ```
 
 ## Usage
 
-You can use `docker run` directly if you want to customize things such as port mapping:
+1. **Prepare WireGuard Configuration**:
 
-```bash
-docker run -it --rm --cap-add=NET_ADMIN \
-    --name wireguard-socks-proxy \
-    --volume /directory/containing/your/wireguard/conf/file/:/etc/wireguard/:ro \
-    -p 1080:1080 \
-    ghcr.io/chosomeister/docker-wireguard-socks-proxy:latest
-```
+   - Place your WireGuard configuration file in the `config` directory and name it `wg0.conf`.
 
-Then connect to the SOCKS proxy through `127.0.0.1:1080` (or `local.docker:1080` for Mac / docker-machine / etc.). For example:
+2. **Run the Docker Container**:
 
-```bash
-curl --proxy socks5h://127.0.0.1:1080 ipinfo.io
-```
+   ```bash
+   docker run -d --name wireguard-socks-proxy --cap-add NET_ADMIN --device /dev/net/tun --volume $(pwd)/config:/etc/wireguard wireguard-socks-proxy
+   ```
+
+3. **Connect to the SOCKS5 Proxy**:
+   - The SOCKS5 proxy will be available on the container's IP address at port 1080.
 
 ## Configuration
 
-### WireGuard Configuration
+- **WireGuard Configuration**:
 
-Ensure your WireGuard configuration file is correctly set up and placed in the specified directory. The container will read this configuration to establish the VPN connection.
+  - Place your WireGuard configuration file in the `config` directory and name it `wg0.conf`.
+  - Ensure the configuration file is valid and contains the correct settings for your VPN.
 
-### Environment Variables
-
-You can customize the container behavior using environment variables:
-
-- `WG_CONFIG`: Path to the WireGuard configuration file inside the container.
-- `PROXY_PORT`: Port on which the SOCKS5 proxy will listen (default: 1080).
-
-Example:
-
-```bash
-docker run -it --rm --cap-add=NET_ADMIN \
-    --name wireguard-socks-proxy \
-    --volume /directory/containing/your/wireguard/conf/file/:/etc/wireguard/:ro \
-    -e WG_CONFIG=/etc/wireguard/wg0.conf \
-    -e PROXY_PORT=1080 \
-    -p 1080:1080 \
-    ghcr.io/chosomeister/docker-wireguard-socks-proxy:latest
-```
-
-## Example Scenarios
-
-### Using SOCKS5 Proxy with a Web Browser
-
-Configure your web browser to use the SOCKS5 proxy at `127.0.0.1:1080` to route all traffic through the WireGuard VPN.
-
-### Converting SOCKS5 to HTTP Proxy
-
-You can easily convert this to an HTTP proxy using [http-proxy-to-socks](https://github.com/oyyd/http-proxy-to-socks):
-
-```bash
-hpts -s 127.0.0.1:1080 -p 8080
-```
-
-## HTTP Proxy
-
-You can convert the SOCKS5 proxy to an HTTP proxy using [http-proxy-to-socks](https://github.com/oyyd/http-proxy-to-socks), e.g.
-
-```bash
-hpts -s 127.0.0.1:1080 -p 8080
-```
-
-## Troubleshooting
-
-### I get "Permission Denied"
-
-This can happen if your WireGuard configuration file includes an IPv6 address but your host interface does not work with it. Try removing the IPv6 address in `Address` from your configuration file.
-
-### Common Issues
-
-- Ensure that Docker has the necessary permissions and capabilities (`--cap-add=NET_ADMIN`).
-- Verify that the WireGuard configuration file is correctly formatted and accessible by the container.
+- **SOCKS5 Configuration**:
+  - The SOCKS5 proxy is configured using the `sockd.conf` file located in `/etc/sockd.conf` inside the container.
+  - Modify this file to change proxy settings as needed.
 
 ## Contributing
 
-Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
+We welcome contributions! Please follow these steps to contribute:
+
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature-branch`).
+3. Make your changes and commit them (`git commit -m 'Add new feature'`).
+4. Push to the branch (`git push origin feature-branch`).
+5. Create a Pull Request.
 
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
----
+## Contact Information
 
-This improved README provides a more comprehensive guide, covering usage, configuration, example scenarios, troubleshooting, and contribution guidelines. Feel free to customize further based on specific needs or additional features of your project.
+For questions or support, please open an issue on GitHub or contact the maintainers at `your-email@example.com`.
