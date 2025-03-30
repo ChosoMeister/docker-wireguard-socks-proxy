@@ -14,3 +14,8 @@ services:
     privileged: true
     sysctls:
       - net.ipv4.conf.all.src_valid_mark=1
+      - net.ipv6.conf.all.disable_ipv6=0
+      - net.ipv6.conf.all.forwarding=1
+    networks:
+      default:
+        enable_ipv6: true

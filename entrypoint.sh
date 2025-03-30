@@ -8,6 +8,9 @@ ifname=$(basename $(ls -1 /etc/wireguard/*.conf | head -1) .conf)
 # Bring up WireGuard interface
 wg-quick up /etc/wireguard/$ifname.conf
 
+# enable IPv6 forwarding
+sysctl -w net.ipv6.conf.all.forwarding=1
+
 # Flush existing IPv6 rules to avoid conflicts
 ip6tables -F
 ip6tables -P FORWARD ACCEPT
