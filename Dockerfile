@@ -3,7 +3,7 @@ FROM alpine:3.12
 
 # Install necessary packages and clean up to reduce image size
 RUN echo "http://dl-4.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories && \
-    apk add --no-cache wireguard-tools dante-server openresolv ip6tables && \
+    apk add --no-cache wireguard-tools dante-server openresolv ip6tables iproute2 && \
     rm -rf /var/cache/apk/*
 
 # Copy the entrypoint script and set executable permissions
